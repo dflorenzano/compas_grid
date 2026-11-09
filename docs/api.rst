@@ -5,6 +5,4 @@ API Reference
 .. toctree::
     :maxdepth: 1
 
-    api/compas_grid.model
-    api/compas_grid.elements
-    
+    api/compas_grid

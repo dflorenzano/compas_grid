@@ -1,8 +1,8 @@
 ********************************************************************************
-compas_grid.models
+compas_grid
 ********************************************************************************
 
-.. currentmodule:: compas_grid.models
+.. currentmodule:: compas_grid
 
 Classes
 =======
@@ -11,4 +11,13 @@ Classes
     :toctree: generated/
     :nosignatures:
 
-    GridModel
+    Grid
+
+Functions
+=========
+
+.. autosummary::
+    :toctree: generated/
+    :nosignatures:
+
+    letters

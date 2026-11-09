@@ -2,12 +2,10 @@ from __future__ import print_function
 
 import os
 
-# Temporary gloval property for debugging.
-debug = False
-global_property = []
+from .grid import Grid
+from .grid import letters
 
-
-__author__ = ["Petras Vestartas"]
+__author__ = ["Petras Vestartas", "Daniele Florenzano"]
 __copyright__ = "Petras Vestartas"
 __license__ = "MIT License"
 __email__ = "petrasvestartas@gmail.com"
@@ -20,4 +18,4 @@ DATA = os.path.abspath(os.path.join(HOME, "data"))
 DOCS = os.path.abspath(os.path.join(HOME, "docs"))
 TEMP = os.path.abspath(os.path.join(HOME, "temp"))
 
-__all__ = ["HOME", "DATA", "DOCS", "TEMP", "GridModel"]
+__all__ = ["HOME", "DATA", "DOCS", "TEMP", "Grid", "letters"]

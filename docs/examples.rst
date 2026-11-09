@@ -3,11 +3,8 @@ Examples
 ********************************************************************************
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :titlesonly:
    :glob:
 
-   examples/elements/index
-   examples/barrel/index
-   examples/gridmodel/index
-   
+   examples/*

@@ -9,9 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added `compas_grid.Grid`: orthogonal grid of tagged U axes, V axes and levels in its own frame (rotated grids by frame), with intersections, nodes, segments, bays, points, lines, axis lines and bay polygons. Keys are axis tags, not indices.
+* Added `Grid.from_spacings` and `compas_grid.letters`.
+* Added `tests/test_grid.py` and example `docs/examples/001_grid.py`.
+
 ### Changed
 
+* Changed the dependencies to `compas >= 2` only (no `compas_model`, no `compas_viewer`).
+
 ### Removed
+
+* Removed `compas_grid.models` (`GridModel`) and `compas_grid.elements` (all element classes), their examples and `data/` files. They stay available at tag `v0.6.7`.
 
 
 ## [0.6.7] 2025-03-12
