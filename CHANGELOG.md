@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * Changed the README and the docs index to describe the grid and placement package.
+* Changed the documentation from Sphinx to MkDocs (Material, mkdocstrings), as in `compas_model`; docs dependencies in the `docs` extra (`requirements-docs.txt`).
 * Changed the dependencies to `compas >= 2` only (no `compas_model`, no `compas_viewer`).
 
 ### Removed
