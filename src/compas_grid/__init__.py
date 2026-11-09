@@ -4,6 +4,7 @@ import os
 
 from .grid import Grid
 from .grid import letters
+from .placement import Placement
 
 __author__ = ["Petras Vestartas", "Daniele Florenzano"]
 __copyright__ = "Petras Vestartas"
@@ -18,4 +19,4 @@ DATA = os.path.abspath(os.path.join(HOME, "data"))
 DOCS = os.path.abspath(os.path.join(HOME, "docs"))
 TEMP = os.path.abspath(os.path.join(HOME, "temp"))
 
-__all__ = ["HOME", "DATA", "DOCS", "TEMP", "Grid", "letters"]
+__all__ = ["HOME", "DATA", "DOCS", "TEMP", "Grid", "letters", "Placement"]

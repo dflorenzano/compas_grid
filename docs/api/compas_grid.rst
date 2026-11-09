@@ -12,6 +12,7 @@ Classes
     :nosignatures:
 
     Grid
+    Placement
 
 Functions
 =========

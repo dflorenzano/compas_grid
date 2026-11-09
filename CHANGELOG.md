@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added `compas_grid.Grid`: orthogonal grid of tagged U axes, V axes and levels in its own frame (rotated grids by frame), with intersections, nodes, segments, bays, points, lines, axis lines and bay polygons. Keys are axis tags, not indices.
 * Added `Grid.from_spacings` and `compas_grid.letters`.
-* Added `tests/test_grid.py` and example `docs/examples/001_grid.py`.
+* Added `compas_grid.Placement`: a node of a grid by tags, offsets (eccentricities) along u, v, w and an optional plan direction toward another intersection; `frame(grid)` and `transformation(grid)` resolve it (as `IfcGridPlacement`).
+* Added `tests/test_grid.py`, `tests/test_placement.py` and examples `docs/examples/001_grid.py`, `docs/examples/002_placement.py`.
 
 ### Changed
 
