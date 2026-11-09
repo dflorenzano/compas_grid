@@ -1,70 +1,42 @@
-# compas_grid
+compas_grid
+===========
 
-Model of simple grid structures for multi-storey buildings.
+Structural grids and placements for building design tools in COMPAS.
 
-## Ubuntu Installation from Scratch
+- `Grid`: tagged U axes, V axes and levels in its own frame (as `IfcGrid`). Intersections, nodes, segments and bays, keyed by tags such as `("B", "2", "L1")`; points, lines, axis lines and bay polygons in the world. `Grid.from_spacings`, `Grid.from_lines` (drawn input), `Grid.to_cellnetwork`.
+- `Placement`: a node of a grid, offsets along u, v, w and an optional direction toward another intersection (as `IfcGridPlacement`). `placement.frame(grid)`, `placement.transformation(grid)`; an element on the grid has `element.transformation = placement.transformation(grid) * local`.
 
-- **Download Installer**: Visit [www.anaconda.com](https://www.anaconda.com/products/distribution#download-section) to download `Anaconda3-2024.10-1-Linux-x86_64.sh`.
-- **Run Installer**: Execute the installer with `bash Anaconda3-2024.10-1-Linux-x86_64.sh` and follow prompts.
-- **Initialize Anaconda**: Run `source ~/.bashrc` and initialize with `conda init`.
-- **Verify Installation**: Check Conda version with `conda --version`.
-- **Update Conda**: Keep Conda updated using `conda update --all`.
-- **Create Environment**: Use `conda create -n model -c conda-forge compas compas_viewer compas_occ compas_cgal python=3.9.10` to create a new environment.
-- **Activate Environment**: Activate it with `conda activate model`.
-- **Install Git**: `sudo apt install git -y`
-- **Clone Model** go to you code directory `cd '/home/petras/code'`, then `git clone https://github.com/blockresearchgroup/compas_model` then, `cd  compas_model` then, `pip install -e .`
-- **Clone Grid** go to you code directory `cd ..`, then `git clone https://github.com/BRG-research/compas_grid` then, `cd  compas_grid` then, `pip install -e .`
-- **VS Code** open vscode set the environment with `CTRL+SHIFT+P` and `>Select: Python Interpreter`.
-  
-## Git Branch
+`compas_grid` depends on `compas` only. It has no element classes. The `GridModel` and the elements of version 0.6.7 are at tag `v0.6.7`.
 
-For new features use other github branches.
+~~~python
+from compas_grid import Grid, Placement
 
-To pull latest branch
-```bash
-git pull origin crea
-```
+grid = Grid.from_spacings(u=[6.0, 6.0], v=[4.0], levels=[3.2, 3.2])
+grid.point("B", "2", "L1")                      # Point(6, 4, 3.2)
+grid.bays()                                     # [(("A", "1"), ("B", "2")), (("B", "1"), ("C", "2"))]
+beam = Placement(("A", "1", "L1"), offset=(0, 0, -0.25), toward=("B", "1"))
+beam.transformation(grid)
+~~~
 
+Installation
+------------
 
-## Commit style
+To install the latest version for development:
 
-```bash
-git commit -m "DOC <description>"         <--- documentation related messages including readme
-git commit -m "ADD <description>"         <--- for adding new elements
-git commit -m "FIX <description>"         <--- for fixing (errors, typos)
-git commit -m "FLASH <description>"       <--- quick checkpoint before refactoring
-git commit -m "MILESTONE <description>"   <--- for capping moment in development
-git commit -m "CAP <description>"         <--- for for less important milestones
-git commit -m "UPDATE <description>"      <--- for moddification to the same file
-git commit -m "MISC <description>"        <--- for any other reasons to be described
-git commit -m "WIP <description>"         <--- for not finished work
-git commit -m "REFACTOR <description>"    <--- for refactored code
-git commit -m "MERGE <description>"       <--- for merging operations
-git commit -m "WIP-CAP <description>"     <--- for when combining multiple commits into one
-```
-
-## Installation
-
-Stable releases can be installed from PyPI.
-
-```bash
-pip install compas_grid
-```
-
-To install the latest version for development, do:
-
-```bash
-git clone https://github.com//compas_grid.git
+~~~bash
+git clone https://github.com/dflorenzano/compas_grid.git
 cd compas_grid
 pip install -e ".[dev]"
-```
+~~~
 
-## Documentation
+Tests
+-----
 
-For further "getting started" instructions, a tutorial, examples, and an API reference,
-please check out the online documentation here: [compas_grid docs](https://.github.io/compas_grid)
+~~~bash
+pytest --doctest-modules src tests
+~~~
 
-## Issue Tracker
+Examples
+--------
 
-If you find a bug or if you have a problem with running the code, please file an issue on the [Issue Tracker](https://github.com//compas_grid/issues).
-
+`docs/examples/001_grid.py`, `002_placement.py`, `003_from_lines.py`.

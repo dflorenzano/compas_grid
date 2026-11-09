@@ -9,7 +9,7 @@ compas_grid
    :class: figure-img img-fluid
 
 
-COMPAS Grid is a model for multi-storey buildings, providing a comprehensive library of elements and a model based on the CellNetwork class from COMPAS. This package streamlines the creation and analysis of complex building structures by utilizing user input such as lines representing structural elements and meshes representing floors. From this input, an underlying Graph is created and transformed into a CellNetwork object, which forms the backbone of the structural model. The CellNetwork is then encapsulated within a GridModel, offering a flexible and robust representation of the building's structure. This approach allows for automatic generation and positioning of structural elements like beams, columns, slabs, and column heads based on the graph's connectivity. COMPAS Grid features include customizable elements, topological analysis capabilities, seamless integration with the COMPAS ecosystem, extensibility for adding new element types or analysis methods, and interoperability with various CAD and BIM software.
+COMPAS Grid gives structural grids and placements for building design tools in COMPAS. A ``Grid`` is a set of tagged U axes, V axes and levels in its own frame, like ``IfcGrid``: it gives intersections, nodes, segments, bays and their geometry, keyed by tags (``("B", "2", "L1")``). A ``Placement`` locates something on a grid by a node, offsets and an optional direction, like ``IfcGridPlacement``, and resolves to a frame and a transformation. The package depends on ``compas`` only and has no element classes: element libraries, analysis models and IFC adapters use it.
 
 
 Table of Contents

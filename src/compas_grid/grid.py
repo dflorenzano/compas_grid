@@ -1,9 +1,11 @@
 from compas.data import Data
+from compas.datastructures import CellNetwork
 from compas.geometry import Frame
 from compas.geometry import Line
 from compas.geometry import Point
 from compas.geometry import Polygon
 from compas.geometry import Transformation
+from compas.tolerance import TOL
 
 LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ"  # I and O are left out: they read as 1 and 0
 
@@ -31,6 +33,17 @@ def letters(n):
             k = k // size - 1
         tags.append(tag)
     return tags
+
+
+def _cluster(values, tolerance):
+    """Sorted mean values of groups of ``values`` that lie within ``tolerance`` of the group's first value."""
+    groups = []
+    for value in sorted(values):
+        if groups and value - groups[-1][0] <= tolerance:
+            groups[-1].append(value)
+        else:
+            groups.append([value])
+    return [sum(g) / len(g) for g in groups]
 
 
 def _check(name, values, tags):
@@ -153,6 +166,45 @@ class Grid(Data):
 
         return cls(running(u), running(v), running(levels or []), **kwargs)
 
+    @classmethod
+    def from_lines(cls, lines, frame=None, tolerance=None, **kwargs):
+        """Make a grid from drawn lines (e.g. column and beam axes exported from CAD).
+
+        The end points are taken into ``frame``; their distinct x, y and z values become the U axes, V axes and levels.
+        Values closer than ``tolerance`` to the first value of their group are merged into their mean.
+        Every distinct value becomes an axis, so a point off the grid (e.g. a secondary beam's end) adds one.
+
+        Parameters
+        ----------
+        lines : list[:class:`compas.geometry.Line`]
+            The drawn lines.
+        frame : :class:`compas.geometry.Frame`, optional
+            The grid's frame. Default ``Frame.worldXY()``.
+        tolerance : float, optional
+            Merge distance, in model units. Default ``compas.tolerance.TOL.absolute`` (merges float noise only): give one for drawings that are not snapped.
+        **kwargs
+            Tags and name, as for :class:`Grid`.
+
+        Returns
+        -------
+        :class:`Grid`
+
+        Examples
+        --------
+        >>> from compas.geometry import Line
+        >>> lines = [Line([0, 0, 0], [0, 0, 3]), Line([0, 0, 3], [6, 0, 3]), Line([6, 0, 3], [6, 4, 3.0004])]
+        >>> grid = Grid.from_lines(lines, tolerance=0.001)
+        >>> grid.u, grid.v, [round(z, 5) for z in grid.levels]  # 3, 3, 3, 3 and 3.0004 merged into their mean
+        ([0.0, 6.0], [0.0, 4.0], [0.0, 3.00008])
+
+        """
+        frame = frame or Frame.worldXY()
+        tolerance = TOL.absolute if tolerance is None else tolerance
+        to_local = Transformation.from_change_of_basis(Frame.worldXY(), frame)
+        points = [point.transformed(to_local) for line in lines for point in (line.start, line.end)]
+        u, v, w = (_cluster([p[i] for p in points], tolerance) for i in range(3))
+        return cls(u, v, w, frame=frame, **kwargs)
+
     # =============================================================================
     # Tags and indices
     # =============================================================================
@@ -256,3 +308,35 @@ class Grid(Data):
         """The outline of a bay at a level, counter-clockwise from its lower corner."""
         (u0, v0), (u1, v1) = bay
         return Polygon([self.point(u0, v0, level), self.point(u1, v0, level), self.point(u1, v1, level), self.point(u0, v1, level)])
+
+    # =============================================================================
+    # Conversions
+    # =============================================================================
+
+    def to_cellnetwork(self):
+        """The grid as a :class:`compas.datastructures.CellNetwork`, in the world.
+
+        Vertices are the nodes (attribute ``node``: the tags). Edges are the column lines between consecutive levels
+        (``is_column``) and the segments on every level (``is_beam``). Faces are the bays on every level (``is_floor``).
+        Every vertex, edge and face also has ``level``: its level tag (a column line: its lower level).
+
+        Returns
+        -------
+        :class:`compas.datastructures.CellNetwork`
+
+        """
+        network = CellNetwork()
+        keys = {}
+        for node in self.nodes():
+            x, y, z = self.point(*node)
+            keys[node] = network.add_vertex(x=x, y=y, z=z, node=list(node), level=node[2])
+        for lower, upper in zip(self.level_tags, self.level_tags[1:]):
+            for u, v in self.intersections():
+                network.add_edge(keys[(u, v, lower)], keys[(u, v, upper)], is_column=True, level=lower)
+        for level in self.level_tags:
+            for a, b in self.segments():
+                network.add_edge(keys[a + (level,)], keys[b + (level,)], is_beam=True, level=level)
+            for (u0, v0), (u1, v1) in self.bays():
+                corners = [(u0, v0), (u1, v0), (u1, v1), (u0, v1)]
+                network.add_face([keys[c + (level,)] for c in corners], is_floor=True, level=level)
+        return network

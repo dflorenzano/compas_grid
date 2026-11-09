@@ -5,7 +5,9 @@ import pytest
 from compas.data import json_dumps
 from compas.data import json_loads
 from compas.geometry import Frame
+from compas.geometry import Line
 from compas.geometry import Rotation
+from compas.geometry import Transformation
 from compas.geometry import Translation
 from compas.tolerance import TOL
 from compas_grid import Grid
@@ -106,3 +108,30 @@ def test_unknown_tag_and_direction(grid):
         grid.index("x", "A")
     with pytest.raises(ValueError):
         grid.segments("w")
+
+
+def test_from_lines_merges_within_tolerance_and_reads_frame():
+    lines = [Line([0, 0, 0], [0, 0, 3]), Line([6.0004, 0, 0], [6, 0, 3]), Line([0, 0, 3], [6, 4, 3])]
+    grid = Grid.from_lines(lines, tolerance=0.001)
+    assert TOL.is_allclose(grid.u, [0, 18.0004 / 3])  # 6.0004, 6, 6 merged into their mean
+    assert grid.v == [0, 4] and grid.levels == [0, 3]
+    frame = Frame([1, 1, 0], [0, 1, 0], [-1, 0, 0])
+    moved = [line.transformed(Transformation.from_frame(frame)) for line in lines]
+    again = Grid.from_lines(moved, frame=frame, tolerance=0.001)
+    assert TOL.is_allclose(again.u, grid.u) and TOL.is_allclose(again.v, grid.v) and TOL.is_allclose(again.levels, grid.levels)
+
+
+def test_from_lines_matches_parametric_grid():
+    grid = Grid(u=[0, 6, 12], v=[0, 4], levels=[0.0, 3.2])
+    lines = [grid.line(a + ("L1",), b + ("L1",)) for a, b in grid.segments()] + [grid.line((u, v, "L0"), (u, v, "L1")) for u, v in grid.intersections()]
+    assert Grid.from_lines(lines).__data__ == grid.__data__
+
+
+def test_to_cellnetwork(grid):
+    network = grid.to_cellnetwork()
+    assert network.number_of_vertices() == 18
+    assert len(list(network.edges_where(is_column=True))) == 12  # 6 intersections x 2 storeys
+    assert len(list(network.edges_where(is_beam=True))) == 21  # 7 segments x 3 levels
+    assert len(list(network.faces_where(is_floor=True))) == 6  # 2 bays x 3 levels
+    key = next(k for k in network.vertices() if network.vertex_attribute(k, "node") == ["B", "2", "L1"])
+    assert network.vertex_coordinates(key) == [6, 4, 3.2]
